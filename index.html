@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday, Sifat Netri!</title>
+  <!-- This script pulls in Tailwind CSS for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- These are for the animations and photo gallery -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/css/lightgallery.min.css" />
+
+  <!-- Google Fonts for the Anime look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Link to your new external CSS file -->
+  <link rel="stylesheet" href="style.css">
+  <!-- IMPORTANT: Replace with a real image link after you upload it -->
+  <meta property="og:image" content="https://placehold.co/1200x630/87CEEB/FFFFFF?text=A+Surprise+For+[Name]">
+</head>
+<body>
+<!-- Canvas for the falling cherry blossoms -->
+<canvas id="sakura-canvas"></canvas>
+
+<!-- Section 1: Hero Welcome -->
+<header class="h-screen relative flex items-center justify-center text-white overflow-hidden">
+  <video autoplay loop muted playsinline class="absolute top-0 left-0 w-full h-full object-cover z-[-1]">
+    <source src="img/sa.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+
+  <div class="text-center z-10 p-4" data-aos="fade-in" data-aos-duration="1500">
+    <h1 class="text-5xl md:text-7xl font-anime drop-shadow-lg">Happy Birthday, Sifat Netri!</h1>
+    <p class="mt-4 text-xl font-semibold">Celebrating a wonderful journey of...Sifat Netri</p>
+    <div id="countdown" class="hidden"></div>
+  </div>
+</header>
+<section id="cake-section" style="padding: 100px 0; background-color: #fce4ec; text-align: center; min-height: 800px; position: relative; overflow: hidden; font-family: 'Arial', sans-serif;">
+    
+  <div id="balloon-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5;"></div>
+
+  <div id="final-wish" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; width: 100%; opacity: 0; transition: opacity 1s ease-in;">
+      <h1 style="font-size: clamp(3rem, 10vw, 6rem); color: #d81b60; font-family: 'Georgia', serif; font-style: italic; font-weight: bold; text-shadow: 2px 2px 10px rgba(0,0,0,0.1);">
+          Happy Birthday Sifat Vabi
+      </h1>
+  </div>
+
+  <div id="cake-wrapper" style="position: relative; z-index: 10;">
+      <div id="candle-container" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 3px; width: 500px; margin: 0 auto; min-height: 70px; position: relative; z-index: 20;">
+          </div>
+
+      <div style="position: relative; width: 480px; height: 240px; margin: 0 auto; background-color: #f48fb1; border-radius: 0 0 25px 25px; border-bottom: 12px solid #f06292; box-shadow: 0 25px 35px rgba(0,0,0,0.12); z-index: 15;">
+          
+          <div style="position: absolute; top: -30px; left: 0; width: 100%; height: 60px; background-color: white; border-radius: 50%; box-shadow: 0 6px 12px rgba(0,0,0,0.06); z-index: 25; display: flex; align-items: center; justify-content: center;">
+               <div style="font-size: 20px; letter-spacing: 20px;">🌸✨🍓🍰🍓✨🌸</div>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+              <span style="font-size: 5rem; color: #ad1457; opacity: 0.2; font-weight: bold; letter-spacing: 5px; font-family: sans-serif;">Sifat</span>
+          </div>
+      </div>
+
+      <div style="margin-top: 70px;">
+          <button id="cakeBtn" style="background-color: #e91e63; color: white; border: none; padding: 20px 60px; font-size: 1.5rem; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 10px 25px rgba(233, 30, 99, 0.4); transition: all 0.3s ease;">
+              Turn on Candles 🕯️
+          </button>
+      </div>
+  </div>
+</section>
+
+<style>
+  /* Flame Effect */
+  .fire-glow {
+      width: 12px; height: 18px;
+      background: radial-gradient(circle at bottom, #fff, #ffeb3b, #f44336);
+      border-radius: 50% 50% 20% 20%;
+      position: absolute; top: -20px; left: -2px;
+      box-shadow: 0 0 15px #ff9800;
+      animation: cakeFlicker 0.1s infinite alternate;
+      opacity: 0; transition: opacity 0.3s;
+  }
+  @keyframes cakeFlicker { from { transform: scale(1); } to { transform: scale(1.1); } }
+  
+  .is-lit { opacity: 1 !important; }
+
+  /* Flyaway Balloon Animation */
+  .balloon-fly { animation: balloonFlyUp 5s linear forwards; }
+  @keyframes balloonFlyUp {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-120vh) rotate(20deg); opacity: 0; }
+  }
+</style>
+
+<script>
+  (function() {
+      const container = document.getElementById('candle-container');
+      const btn = document.getElementById('cakeBtn');
+      const wrapper = document.getElementById('cake-wrapper');
+      const wishText = document.getElementById('final-wish');
+      const balloonBox = document.getElementById('balloon-container');
+
+      // 1. Generate 28 Candles
+      let candlesHTML = '';
+      for (let i = 0; i < 28; i++) {
+          candlesHTML += `
+              <div style="width: 7px; height: 50px; background: #4fc3f7; position: relative; border-radius: 2px; border-bottom: 2px solid #0288d1;">
+                  <div class="fire-glow"></div>
+              </div>`;
+      }
+      container.innerHTML = candlesHTML;
+
+      // 2. Balloon Creator
+      function launchBalloons() {
+          const colors = ['#ff80ab', '#80d8ff', '#b9f6ca', '#ffff8d', '#ccff90'];
+          for (let i = 0; i < 25; i++) {
+              const b = document.createElement('div');
+              const size = 50 + Math.random() * 40;
+              b.style.cssText = `
+                  position: absolute; bottom: -100px; left: ${Math.random() * 90}vw;
+                  width: ${size}px; height: ${size * 1.2}px;
+                  background-color: ${colors[i % colors.length]};
+                  border-radius: 50%; opacity: 0.8; z-index: 5;
+                  box-shadow: inset -5px -10px 15px rgba(0,0,0,0.1);
+              `;
+              
+              // Add balloon string
+              const s = document.createElement('div');
+              s.style.cssText = `position: absolute; bottom: -40px; left: 50%; width: 1px; height: 40px; background: rgba(0,0,0,0.2);`;
+              b.appendChild(s);
+              
+              balloonBox.appendChild(b);
+              setTimeout(() => b.classList.add('balloon-fly'), i * 100);
+          }
+      }
+
+      let step = 0;
+      btn.onclick = function() {
+          if (step === 0) {
+              // Turn On
+              document.querySelectorAll('.fire-glow').forEach(f => f.classList.add('is-lit'));
+              btn.innerText = "Blow Candles 🌬️";
+              btn.style.backgroundColor = "#03a9f4";
+              step = 1;
+          } else if (step === 1) {
+              // Blow Out
+              document.querySelectorAll('.fire-glow').forEach(f => f.classList.remove('is-lit'));
+              btn.disabled = true;
+              btn.innerText = "Making a wish...";
+              
+              // Launch Balloons
+              launchBalloons();
+
+              // Fade Cake out and Text in
+              setTimeout(() => {
+                  wrapper.style.transition = "opacity 0.8s ease";
+                  wrapper.style.opacity = "0";
+                  setTimeout(() => {
+                      wrapper.style.display = "none";
+                      wishText.style.display = "block";
+                      setTimeout(() => wishText.style.opacity = "1", 50);
+                  }, 800);
+              }, 1000);
+          }
+      };
+  })();
+</script>
+<!-- Main Content -->
+<main class="container mx-auto p-6 md:p-12">
+
+  <!-- Section 2: A Letter For You -->
+  <section class="my-16 md:my-24 max-w-3xl mx-auto text-center" data-aos="fade-up">
+    <h2 class="text-4xl md:text-5xl font-anime text-sakura mb-8 drop-shadow-sm">A Special Message For Netri</h2>
+    <div class="text-left text-lg leading-relaxed space-y-4 bg-white p-8 rounded-lg shadow-lg">
+      <!-- TODO: Write your personal letter here -->
+      <p>Hey Netri,</p>
+      <p>Wish you a very Happy Birthday Netriji! May Allah fulfil all your wishes, you have an endless supply of happy days and your dreams turns into reality, & may Allah may become u successful soon </p>
+      <p>Thankyou for always being so kind and reason behind everyone smile, Always connected to everyone , A true leader to everyone, You always be yourself and that's your vibe We all are very lucky.</p>
+      <p class="text-right mt-8">
+        Upodeshta<br>
+      </p>
+    </div>
+  </section>
+
+  <!-- Section 3: The Timeline -->
+  <section class="my-16 md:my-24">
+    <h2 class="text-4xl md:text-5xl font-anime text-center mb-12" data-aos="fade-up">Netri's Story Arc</h2>
+    <div class="space-y-16">
+      <!-- Timeline Item 1 -->
+      <div class="flex flex-col md:flex-row items-center gap-8" data-aos="fade-right">
+        <!-- TODO: Replace with your photo -->
+        <img src="img/age-4.jpeg" alt="Add photo 1" class="w-full md:w-1/4 rounded-lg shadow-xl border-4 border-white">
+        <div class="text-center md:text-left">
+          <!-- TODO: Customize the date and story -->
+          <h2 class="text-2xl font-anime text-sakura">Age-4</h2>
+          <p class="mt-2 text-lg">Netri calling her Dons rn</p>
+            <br>
+        </div>
+      </div>
+      <!-- Timeline Item 2 -->
+      <div class="flex flex-col md:flex-row-reverse items-center gap-8" data-aos="fade-left">
+        <!-- TODO: Replace with your photo -->
+        <img src="img/age-17.jpeg" alt="Add photo 2" class="w-full md:w-1/4 rounded-lg shadow-xl border-4 border-white">
+        <div class="text-center md:text-right">
+          <!-- TODO: Customize the date and story -->
+          <h3 class="text-2xl font-anime text-sakura">Age-17</h3>
+          <p class="mt-2 text-lg">Netri in her Viqi era</p>
+         <br>
+        </div>
+      </div>
+      <!-- Timeline Item 3 (NEW) -->
+      <div class="flex flex-col md:flex-row items-center gap-8" data-aos="fade-right">
+        <img src="img/age-21.jpeg" alt="Add photo 3" class="w-full md:w-1/4 rounded-lg shadow-xl border-4 border-white">
+        <div class="text-center md:text-left">
+          <h3 class="text-2xl font-anime text-sakura">Age-24</h3>
+          <p class="mt-2 text-lg">Sephana Days</p>
+         <br>
+        </div>
+      </div>
+      <!-- Timeline Item 4 (NEW) -->
+      <div class="flex flex-col md:flex-row-reverse items-center gap-8" data-aos="fade-left">
+        <img src="img/age-27.jpeg" alt="Add photo4" class="w-full md:w-1/4 rounded-lg shadow-xl border-4 border-white">
+        <div class="text-center md:text-right">
+          <h3 class="text-2xl font-anime text-sakura">Age-27</h3>
+          <p class="mt-2 text-lg">Dr. Sifat</p>
+            <br>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: Your Favourite Photos of your loved Ones (NEW SECTION) -->
+  <section class="my-16 md:my-24">
+    <h2 class="text-4xl md:text-5xl font-anime text-center mb-12" data-aos="fade-up">Family time with Netriji</h2>
+    <div class="relative">
+      <!-- Scroll Buttons -->
+      <button id="scroll-left-btn" class="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white rounded-full p-2 shadow-md transition-opacity opacity-0 md:opacity-100">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-sakura" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+      </button>
+      <button id="scroll-right-btn" class="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white rounded-full p-2 shadow-md transition-opacity opacity-0 md:opacity-100">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-sakura" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+      </button>
+
+      <!-- Scrollable Container -->
+      <div id="hall-of-fame-scroller" class="flex overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide p-4 -mx-4">
+        <div class="flex snap-x snap-mandatory gap-8">
+          <!--  Card 1 -->
+          <div class="snap-center flex-shrink-0 w-10/12 sm:w-1/2 md:w-1/3 lg:w-1/4" data-aos="fade-up" data-aos-delay="100">
+            <div class="bg-white p-6 rounded-lg shadow-lg text-center h-full">
+              <img src="img/we.jpeg" alt="Photo 1" class="w-full h-80 object-cover rounded-md mb-4">
+              <h3 class="text-2xl font-anime text-sakura">Photo 1</h3>
+              <p class="mt-2">"We”"</p>
+            </div>
+          </div>
+          <!--  Card 2 -->
+          <div class="snap-center flex-shrink-0 w-10/12 sm:w-1/2 md:w-1/3 lg:w-1/4" data-aos="fade-up" data-aos-delay="200">
+            <div class="bg-white p-6 rounded-lg shadow-lg text-center h-full">
+              <img src="img/mahim vaiyu.jpeg" alt="Photo 2" class="w-full h-80 object-cover rounded-md mb-4">
+              <h3 class="text-2xl font-anime text-sakura">Photo 2</h3>
+              <p class="mt-2">"With lifeline"</p>
+            </div>
+          </div>
+          <!--  Card 3 -->
+          <div class="snap-center flex-shrink-0 w-10/12 sm:w-1/2 md:w-1/3 lg:w-1/4" data-aos="fade-up" data-aos-delay="300">
+            <div class="bg-white p-6 rounded-lg shadow-lg text-center h-full">
+              <img src="img/orpa vabi.jpeg" alt="Photo 3" class="w-full h-80 object-cover rounded-md mb-4">
+              <h3 class="text-2xl font-anime text-sakura">Photo 3</h3>
+              <p class="mt-2">"One & only Rafu vabi"</p>
+            </div>
+          </div>
+          <!--  Card 4 -->
+          <div class="snap-center flex-shrink-0 w-10/12 sm:w-1/2 md:w-1/3 lg:w-1/4" data-aos="fade-up" data-aos-delay="400">
+            <div class="bg-white p-6 rounded-lg shadow-lg text-center h-full">
+              <img src="img/upodeshta.jpeg" alt="Photo 4" class="w-full h-80 object-cover rounded-md mb-4">
+              <h3 class="text-2xl font-anime text-sakura">Photo 4</h3>
+              <p class="mt-2">"Upodeshta.jpeg"</p>
+            </div>
+          </div>
+          <!--  Card 5 -->
+          <div class="snap-center flex-shrink-0 w-10/12 sm:w-1/2 md:w-1/3 lg:w-1/4" data-aos="fade-up" data-aos-delay="500">
+            <div class="bg-white p-6 rounded-lg shadow-lg text-center h-full">
+              <img src="img/dalia apu.jpeg" alt="Photo 5" class="w-full h-80 object-cover rounded-md mb-4">
+              <h3 class="text-2xl font-anime text-sakura">Photo 5</h3>
+              <p class="mt-2">"Prio Nonash"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: The Gallery -->
+  <section class="my-16 md:my-24">
+    <h2 class="text-4xl md:text-5xl font-anime text-center mb-12" data-aos="fade-up">Celebrating the wondeful Netri</h2>
+    <div id="lightgallery" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <a href="img/1.png" data-aos="zoom-in" class="block w-full h-48 md:h-64">
+        <img src="img/1.jpeg" class="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 w-full h-full object-cover border-4 border-white" alt="Memory 1">
+      </a>
+      <a href="img/2.png" data-aos="zoom-in" data-aos-delay="100" class="block w-full h-48 md:h-64">
+        <img src="img/2.jpeg" class="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 w-full h-full object-cover border-4 border-white" alt="Memory 2">
+      </a>
+      <a href="img/3.png" data-aos="zoom-in" data-aos-delay="200" class="block w-full h-48 md:h-64">
+        <img src="img/3.jpeg" class="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 w-full h-full object-cover border-4 border-white" alt="Memory 3">
+      </a>
+      <a href="img/4.png" data-aos="zoom-in" data-aos-delay="300" class="block w-full h-48 md:h-64">
+        <img src="img/4.jpeg" class="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 w-full h-full object-cover border-4 border-white" alt="Memory 4">
+      </a>
+      <!-- Second Row of Photos -->
+      <a href="img/5.png" data-aos="zoom-in" data-aos-delay="400" class="block w-full h-48 md:h-64">
+        <img src="img/5.jpeg" class="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 w-full h-full object-cover border-4 border-white" alt="Memory 5">
+      </a>
+      <a href="img/6.png" data-aos="zoom-in" data-aos-delay="500" class="block w-full h-48 md:h-64">
+        <img src="img/6.jpeg" class="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 w-full h-full object-cover border-4 border-white" alt="Memory 6">
+      </a>
+      <a href="img/7.png" data-aos="zoom-in" data-aos-delay="600" class="block w-full h-48 md:h-64">
+        <img src="img/7.jpeg" class="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 w-full h-full object-cover border-4 border-white" alt="Memory 7">
+      </a>
+      <a href="img/8.png" data-aos="zoom-in" data-aos-delay="700" class="block w-full h-48 md:h-64">
+        <img src="img/8.jpeg" class="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 w-full h-full object-cover border-4 border-white" alt="Memory 8">
+      </a>
+      <!-- Third Row of Photos -->
+      <a href="img/9.png" data-aos="zoom-in" data-aos-delay="800" class="block w-full h-48 md:h-64">
+        <img src="img/9.jpeg" class="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 w-full h-full object-cover border-4 border-white" alt="Memory 9">
+      </a>
+      <a href="img/10.png" data-aos="zoom-in" data-aos-delay="900" class="block w-full h-48 md:h-64">
+        <img src="img/10.jpeg" class="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 w-full h-full object-cover border-4 border-white" alt="Memory 10">
+      </a>
+      <a href="img/11.png" data-aos="zoom-in" data-aos-delay="1000" class="block w-full h-48 md:h-64">
+        <img src="img/11.jpeg" class="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 w-full h-full object-cover border-4 border-white" alt="Memory 11">
+      </a>
+      <a href="img/12.png" data-aos="zoom-in" data-aos-delay="1100" class="block w-full h-48 md:h-64">
+        <img src="img/12.jpeg" class="rounded-lg shadow-lg hover:scale-105 transition-transform duration-300 w-full h-full object-cover border-4 border-white" alt="Memory 12">
+      </a>
+    </div>
+  </section>
+
+    <!-- Section 6: Finale -->
+    <section class="my-16 md:my-24" data-aos="fade-up">
+        <h2 class="text-4xl md:text-5xl font-anime text-center mb-4">Happy Birthday Sifat Netri</h2>
+        <div class="max-w-4xl mx-auto rounded-lg shadow-2xl overflow-hidden bg-navy">
+    </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-navy text-white p-8 text-center">
+  <p>Enjoy your day to the fullest.</p>
+  <p class="text-sm opacity-70 mt-2">Hope you liked it...</p>
+</footer>
+
+<!-- These scripts are for the animations and photo gallery -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.1/lightgallery.min.js"></script>
+
+<!-- Link to your new external JavaScript file -->
+<script src="script.js"></script>
+</body>
+</html>
